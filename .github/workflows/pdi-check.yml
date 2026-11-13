@@ -3,7 +3,8 @@ name: ServiceNow PDI Daily Check
 
 on:
   schedule:
-    - cron: "0 9 * * *"
+    - cron: "0 10 * * *"
+      timezone: "America/New_York"
   workflow_dispatch:
 
 permissions:
@@ -12,6 +13,7 @@ permissions:
 jobs:
   check-pdi:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check PDI availability
         env:
@@ -23,10 +25,12 @@ jobs:
           fi
 
           echo "Checking ServiceNow PDI..."
+          echo "Scheduled time: 10:00 AM Eastern"
+
           curl -sS -L \
             --max-time 60 \
             -o /tmp/pdi-response.txt \
             -w "HTTP status: %{http_code}\n" \
             "$PDI_URL" || true
 
-          echo "Check completed."
+          echo "PDI availability check completed."
