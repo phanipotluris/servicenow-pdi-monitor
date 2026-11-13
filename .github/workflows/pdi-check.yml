@@ -1,0 +1,32 @@
+
+name: ServiceNow PDI Daily Check
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-pdi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PDI availability
+        env:
+          PDI_URL: ${{ secrets.PDI_URL }}
+        run: |
+          if [ -z "$PDI_URL" ]; then
+            echo "PDI_URL secret is not configured."
+            exit 1
+          fi
+
+          echo "Checking ServiceNow PDI..."
+          curl -sS -L \
+            --max-time 60 \
+            -o /tmp/pdi-response.txt \
+            -w "HTTP status: %{http_code}\n" \
+            "$PDI_URL" || true
+
+          echo "Check completed."
